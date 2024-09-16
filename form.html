@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 2px;
+            color: #555555;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        img {
+            max-width: 100px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+    </style>
+    <title>Fam Interest Form</title>
+</head>
+<body>
+    <img src="image001.png" alt="Logo">
+    <form action="send_mail.php" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <label for="agency">Name of Agency:</label>
+        <input type="text" id="agency" name="agency" required>
+
+        <label for="years">Number of Years working as an Adviser:</label>
+        <input type="number" id="years" name="years" required>
+
+        <label for="affiliations">Affiliations (Virtuoso / Serendipians / Signature etc):</label>
+        <input type="text" id="affiliations" name="affiliations">
+
+        <label for="sold-cuba">Have you sold Cuba in the past?</label>
+        <select id="sold-cuba" name="sold-cuba" required>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+
+        <label for="who-used">Who did you use?</label>
+        <input type="text" id="who-used" name="who-used">
+
+        <label for="client-spend">Average daily Spend per person:</label>
+        <input type="number" id="client-spend" name="client-spend" required>
+
+        <label for="fam-interest">Which Fam trip are you interested in?</label>
+        <select id="fam-interest" name="fam-interest" required>
+            <option value="Havana Trinidad">Fam Havana Trinidad - Price per pax $1160, November 1 to 7, 2024</option>
+            <option value="Havana">Fam Havana - Price per pax $850, November 20 to 24, 2024</option>
+            <option value="Havana">Fam Havana + Cayo Guillermo - Price per pax $1390, May 11 to 18, 2025</option>
+            <option value="Havana">Fam Havana Trinidad - Price per pax $1320, May 23 to 29, 2025</option>
+            <option value="Havana">Fam Havana Trinidad - Price per pax $1320, November 1 to 7, 2025</option>
+            <option value="Havana">Fam Havana - Price per pax $940, November 19 to 23, 2025</option>
+        </select>
+
+        <label for="interest">In a sentence, why are you interested in attending this Fam:</label>
+        <textarea id="interest" name="interest" rows="4" cols="50" required></textarea>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
