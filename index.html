@@ -64,7 +64,7 @@
 </head>
 <body>
     <img src="image001.png" alt="Logo">
-    <form action="send_mail.php" method="POST">
+    <form id = "fam-form">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required>
         <label for="email">Email:</label>
@@ -92,12 +92,12 @@
 
         <label for="fam-interest">Which Fam trip are you interested in?</label>
         <select id="fam-interest" name="fam-interest" required>
-            <option value="Havana Trinidad">Fam Havana Trinidad - Price per pax $1160, November 1 to 7, 2024</option>
-            <option value="Havana">Fam Havana - Price per pax $850, November 20 to 24, 2024</option>
-            <option value="Havana">Fam Havana + Cayo Guillermo - Price per pax $1390, May 11 to 18, 2025</option>
-            <option value="Havana">Fam Havana Trinidad - Price per pax $1320, May 23 to 29, 2025</option>
-            <option value="Havana">Fam Havana Trinidad - Price per pax $1320, November 1 to 7, 2025</option>
-            <option value="Havana">Fam Havana - Price per pax $940, November 19 to 23, 2025</option>
+            <option value="Havana Trinidad nov 24">Fam Havana Trinidad - Price per pax $1160, November 1 to 7, 2024</option>
+            <option value="Havana nov 24">Fam Havana - Price per pax $850, November 20 to 24, 2024</option>
+            <option value="Havana guillermo may 25">Fam Havana + Cayo Guillermo - Price per pax $1390, May 11 to 18, 2025</option>
+            <option value="Havana trinidad may 25">Fam Havana Trinidad - Price per pax $1320, May 23 to 29, 2025</option>
+            <option value="Havana trinidad nov 25">Fam Havana Trinidad - Price per pax $1320, November 1 to 7, 2025</option>
+            <option value="Havana nov 25">Fam Havana - Price per pax $940, November 19 to 23, 2025</option>
         </select>
 
         <label for="interest">In a sentence, why are you interested in attending this Fam:</label>
@@ -105,5 +105,25 @@
 
         <input type="submit" value="Submit">
     </form>
+
+    <script>
+        document.getElementById('fam-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const formEntries = Object.fromEntries(formData.entries());
+
+            const response = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formEntries)
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        });
+    </script>
 </body>
 </html>
