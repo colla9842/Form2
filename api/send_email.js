@@ -1,100 +1,53 @@
+// api/send-email.js
+
 const nodemailer = require('nodemailer');
-const fs = require('fs');
-const path = require('path');
-const { parse } = require('json2csv');
 
 export default async function (req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
-    const { name, email, agency, years, affiliations, soldCuba, whoUsed, clientSpend, famInterest, interest } = req.body;
+    const { name, email, agency, years, affiliations, "sold-cuba": soldCuba, "who-used": whoUsed, "client-spend": clientSpend, "fam-interest": famInterest, interest } = req.body;
 
-    // Configure the Nodemailer transporter
+
+    // Configurar el transportador de Nodemailer
     const transporter = nodemailer.createTransport({
-        host: 'mta.extendcp.co.uk',
-        port: 587,
-        secure: false,
+        host: 'mta.extendcp.co.uk', // SMTP host
+        port: 587, // or 465 for SSL
+        secure: false, // true for 465, false for other ports
+        
+        
         auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
+            user: process.env.EMAIL_USER, // Coloca tu correo aquí
+            pass: process.env.EMAIL_PASS, // Coloca tu contraseña aquí
         },
     });
 
-    // Create the email message
+    // Crear el mensaje de correo
     const mailOptions = {
-        from: '"Cuba Private Travel" <noreply@yourdomain.com>', // Use a controlled domain email
-        to: process.env.EMAIL_RECEIVER,
-        subject: 'New Form FAM Interest',
+        from: email,
+        to: process.env.EMAIL_RECEIVER, // El correo donde quieres recibir los mensajes
+        subject: 'New Form fam interest',
         text: `
         Name: ${name}
         Email: ${email}
         Agency: ${agency}
         Experience Years: ${years}
-        Affiliations: ${affiliations}
+        Afiliations: ${affiliations}
         Sold Cuba?: ${soldCuba}
         Who use?: ${whoUsed}
-        Daily spend per client: ${clientSpend}
+        Daily spent per client: ${clientSpend}
         FAM: ${famInterest}
-        Interest description: ${interest}
+        interest description: ${interest}
         `,
     };
 
-    // Try sending the email
+    // Enviar el correo
     try {
         await transporter.sendMail(mailOptions);
-
-        // Save the response to a CSV file
-        const csvFilePath = path.join(process.cwd(), 'responses.csv');
-        const newEntry = {
-            name,
-            email,
-            agency,
-            years,
-            affiliations,
-            soldCuba,
-            whoUsed,
-            clientSpend,
-            famInterest,
-            interest
-        };
-
-        // If the CSV file exists, append the data, otherwise create a new file
-        if (fs.existsSync(csvFilePath)) {
-            const csv = parse([newEntry], { header: false });
-            fs.appendFileSync(csvFilePath, `\n${csv}`, 'utf8');
-        } else {
-            const csv = parse([newEntry], { header: true });
-            fs.writeFileSync(csvFilePath, csv, 'utf8');
-        }
-
-        return res.status(200).json({ message: 'Form submitted successfully.' });
+        return res.status(200).json({ message: 'Form submitted successfully' });
     } catch (error) {
         console.error('Error sending email:', error);
-
-        // Ensure the data is saved even if the email fails
-        const csvFilePath = path.join(process.cwd(), 'responses.csv');
-        const newEntry = {
-            name,
-            email,
-            agency,
-            years,
-            affiliations,
-            soldCuba,
-            whoUsed,
-            clientSpend,
-            famInterest,
-            interest
-        };
-
-        if (fs.existsSync(csvFilePath)) {
-            const csv = parse([newEntry], { header: false });
-            fs.appendFileSync(csvFilePath, `\n${csv}`, 'utf8');
-        } else {
-            const csv = parse([newEntry], { header: true });
-            fs.writeFileSync(csvFilePath, csv, 'utf8');
-        }
-
-        return res.status(500).json({ message: 'There was an error submitting the form.' });
+        return res.status(500).json({ message: 'Error sending email' });
     }
 }
