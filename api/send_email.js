@@ -11,7 +11,11 @@ export default async function (req, res) {
 
     // Configurar el transportador de Nodemailer
     const transporter = nodemailer.createTransport({
-        service: 'Gmail', // O usa cualquier otro servicio de correo como SendGrid, Mailgun, etc.
+        host: 'mta.extendcp.co.uk', // SMTP host
+        port: 587, // or 465 for SSL
+        secure: false, // true for 465, false for other ports
+        
+        
         auth: {
             user: process.env.EMAIL_USER, // Coloca tu correo aquí
             pass: process.env.EMAIL_PASS, // Coloca tu contraseña aquí
@@ -22,18 +26,18 @@ export default async function (req, res) {
     const mailOptions = {
         from: email,
         to: process.env.EMAIL_RECEIVER, // El correo donde quieres recibir los mensajes
-        subject: 'Nuevo Formulario de Interés FAM',
+        subject: 'New Form fam interest',
         text: `
-        Nombre: ${name}
+        Name: ${name}
         Email: ${email}
-        Agencia: ${agency}
-        Años de Experiencia: ${years}
-        Afiliaciones: ${affiliations}
-        ¿Ha vendido Cuba antes?: ${soldCuba}
-        ¿A quién usó?: ${whoUsed}
-        Gasto Diario por Cliente: ${clientSpend}
-        Interés en FAM: ${famInterest}
-        Razón de Interés: ${interest}
+        Agency: ${agency}
+        Experience Years: ${years}
+        Afiliations: ${affiliations}
+        Sold Cuba?: ${soldCuba}
+        Who use?: ${whoUsed}
+        Daily spent per client: ${clientSpend}
+        FAM: ${famInterest}
+        interest description: ${interest}
         `,
     };
 
