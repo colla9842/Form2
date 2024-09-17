@@ -1,9 +1,6 @@
 // api/send-email.js
 
 const nodemailer = require('nodemailer');
-const fs = require('fs');
-const path = require('path');
-const { format } = require('date-fns');
 
 export default async function (req, res) {
     if (req.method !== 'POST') {
@@ -12,11 +9,14 @@ export default async function (req, res) {
 
     const { name, email, agency, years, affiliations, "sold-cuba": soldCuba, "who-used": whoUsed, "client-spend": clientSpend, "fam-interest": famInterest, interest } = req.body;
 
+
     // Configurar el transportador de Nodemailer
     const transporter = nodemailer.createTransport({
         host: 'mta.extendcp.co.uk', // SMTP host
         port: 587, // or 465 for SSL
         secure: false, // true for 465, false for other ports
+        
+        
         auth: {
             user: process.env.EMAIL_USER, // Coloca tu correo aquí
             pass: process.env.EMAIL_PASS, // Coloca tu contraseña aquí
@@ -33,33 +33,23 @@ export default async function (req, res) {
         Email: ${email}
         Agency: ${agency}
         Experience Years: ${years}
-        Affiliations: ${affiliations}
+        Afiliations: ${affiliations}
         Sold Cuba?: ${soldCuba}
         Who use?: ${whoUsed}
         Daily spent per client: ${clientSpend}
         FAM: ${famInterest}
-        Interest description: ${interest}
+        interest description: ${interest}
         `,
     };
 
-    // Ruta del archivo de texto
-    const textFilePath = path.resolve('data/form-submissions.txt');
 
-    // Crear una nueva entrada de texto
-    const newEntry = `${name}, ${email}, ${agency}, ${years}, ${affiliations}, ${soldCuba}, ${whoUsed}, ${clientSpend}, ${famInterest}, ${interest}, ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}\n`;
 
+    // Enviar el correo
     try {
-        // Verifica si el archivo de texto ya existe
-        const fileExists = fs.existsSync(textFilePath);
-
-        // Escribir la nueva entrada en el archivo de texto
-        fs.appendFileSync(textFilePath, newEntry);
-
-        // Enviar el correo
         await transporter.sendMail(mailOptions);
         return res.status(200).json({ message: 'Form submitted successfully' });
     } catch (error) {
-        console.error('Error sending email or saving text file:', error);
-        return res.status(500).json({ message: 'Error sending email or saving text file' });
+        console.error('Error sending email:', error);
+        return res.status(500).json({ message: 'Error sending email' });
     }
 }
