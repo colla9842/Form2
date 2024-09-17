@@ -113,7 +113,7 @@
             const formData = new FormData(this);
             const formEntries = Object.fromEntries(formData.entries());
 
-            const response = await fetch('./api/send_email', {
+            const response = await fetch('/api/send_email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
