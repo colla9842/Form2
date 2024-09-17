@@ -33,10 +33,10 @@ export default async function (req, res) {
         Agency: ${agency}
         Experience Years: ${years}
         Afiliations: ${affiliations}
-        Sold Cuba?: ${soldCuba}
-        Who use?: ${whoUsed}
-        Daily spent per client: ${clientSpend}
-        FAM: ${famInterest}
+        Sold Cuba?: ${sold-cuba}
+        Who use?: ${who-used}
+        Daily spent per client: ${client-spend}
+        FAM: ${fam-interest}
         interest description: ${interest}
         `,
     };
