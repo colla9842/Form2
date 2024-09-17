@@ -64,7 +64,7 @@
 </head>
 <body>
     <img src="image001.png" alt="Logo">
-    <form id = "fam-form">
+    <form id="fam-form">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required>
         <label for="email">Email:</label>
@@ -113,16 +113,28 @@
             const formData = new FormData(this);
             const formEntries = Object.fromEntries(formData.entries());
 
-            const response = await fetch('/api/send_email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formEntries)
-            });
+            try {
+                const response = await fetch('/api/send_email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formEntries)
+                });
 
-            const result = await response.json();
-            alert(result.message);
+                const result = await response.json();
+
+                // Check if the email was sent successfully
+                if (response.ok) {
+                    // Redirect to the thank you page on success
+                    window.location.href = '/thank-you.html';
+                } else {
+                    alert(result.message || 'There was an error submitting the form.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('There was an error submitting the form.');
+            }
         });
     </script>
 </body>
