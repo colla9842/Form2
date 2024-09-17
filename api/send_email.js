@@ -69,7 +69,7 @@ export default async function (req, res) {
     const saveToDatabase = async () => {
         try {
             // Conectar a MongoDB
-            const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+            const client = new MongoClient(process.env.MONGODB_URI);
             await client.connect();
             const db = client.db('formResponses');
             const collection = db.collection('submissions');
