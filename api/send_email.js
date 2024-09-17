@@ -7,7 +7,8 @@ export default async function (req, res) {
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
-    const { name, email, agency, years, affiliations, soldCuba, whoUsed, clientSpend, famInterest, interest } = req.body;
+    const { name, email, agency, years, affiliations, "sold-cuba": soldCuba, "who-used": whoUsed, "client-spend": clientSpend, "fam-interest": famInterest, interest } = req.body;
+
 
     // Configurar el transportador de Nodemailer
     const transporter = nodemailer.createTransport({
@@ -33,10 +34,10 @@ export default async function (req, res) {
         Agency: ${agency}
         Experience Years: ${years}
         Afiliations: ${affiliations}
-        Sold Cuba?: ${sold-cuba}
-        Who use?: ${who-used}
-        Daily spent per client: ${client-spend}
-        FAM: ${fam-interest}
+        Sold Cuba?: ${soldCuba}
+        Who use?: ${whoUsed}
+        Daily spent per client: ${clientSpend}
+        FAM: ${famInterest}
         interest description: ${interest}
         `,
     };
