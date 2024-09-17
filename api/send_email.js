@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 const { format } = require('date-fns');
-const { writeToPath } = require('fast-csv');
+const { writeToPath } = require('@fast-csv/format');
 
 export default async function (req, res) {
     if (req.method !== 'POST') {
@@ -61,17 +61,24 @@ export default async function (req, res) {
         Timestamp: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
     };
 
-    // Escribir en el archivo CSV
     try {
         // Verifica si el archivo CSV ya existe
         const csvExists = fs.existsSync(csvFilePath);
-        const stream = fs.createWriteStream(csvFilePath, { flags: csvExists ? 'a' : 'w' });
 
-        // Escribe el encabezado si el archivo no existe
+        // Crear el archivo CSV si no existe
         if (!csvExists) {
-            writeToPath(stream, [newEntry], { headers: true });
+            const csvStream = writeToPath(csvFilePath, [newEntry], { headers: true });
+            await new Promise((resolve, reject) => {
+                csvStream.on('finish', resolve);
+                csvStream.on('error', reject);
+            });
         } else {
-            writeToPath(stream, [newEntry], { headers: false });
+            // Si el archivo CSV existe, append new data
+            const csvStream = writeToPath(csvFilePath, [newEntry], { headers: false });
+            await new Promise((resolve, reject) => {
+                csvStream.on('finish', resolve);
+                csvStream.on('error', reject);
+            });
         }
 
         // Enviar el correo
