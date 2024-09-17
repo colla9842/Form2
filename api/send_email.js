@@ -4,7 +4,6 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 const { format } = require('date-fns');
-const { writeToPath } = require('@fast-csv/format');
 
 export default async function (req, res) {
     if (req.method !== 'POST') {
@@ -34,58 +33,33 @@ export default async function (req, res) {
         Email: ${email}
         Agency: ${agency}
         Experience Years: ${years}
-        Afiliations: ${affiliations}
+        Affiliations: ${affiliations}
         Sold Cuba?: ${soldCuba}
         Who use?: ${whoUsed}
         Daily spent per client: ${clientSpend}
         FAM: ${famInterest}
-        interest description: ${interest}
+        Interest description: ${interest}
         `,
     };
 
-    // Ruta del archivo CSV
-    const csvFilePath = path.resolve('data/form-submissions.csv');
+    // Ruta del archivo de texto
+    const textFilePath = path.resolve('data/form-submissions.txt');
 
-    // Crear una nueva entrada de CSV
-    const newEntry = {
-        Name: name,
-        Email: email,
-        Agency: agency,
-        'Experience Years': years,
-        Affiliations: affiliations,
-        'Sold Cuba?': soldCuba,
-        'Who use?': whoUsed,
-        'Daily spent per client': clientSpend,
-        FAM: famInterest,
-        'Interest description': interest,
-        Timestamp: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-    };
+    // Crear una nueva entrada de texto
+    const newEntry = `${name}, ${email}, ${agency}, ${years}, ${affiliations}, ${soldCuba}, ${whoUsed}, ${clientSpend}, ${famInterest}, ${interest}, ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}\n`;
 
     try {
-        // Verifica si el archivo CSV ya existe
-        const csvExists = fs.existsSync(csvFilePath);
+        // Verifica si el archivo de texto ya existe
+        const fileExists = fs.existsSync(textFilePath);
 
-        // Crear el archivo CSV si no existe
-        if (!csvExists) {
-            const csvStream = writeToPath(csvFilePath, [newEntry], { headers: true });
-            await new Promise((resolve, reject) => {
-                csvStream.on('finish', resolve);
-                csvStream.on('error', reject);
-            });
-        } else {
-            // Si el archivo CSV existe, append new data
-            const csvStream = writeToPath(csvFilePath, [newEntry], { headers: false });
-            await new Promise((resolve, reject) => {
-                csvStream.on('finish', resolve);
-                csvStream.on('error', reject);
-            });
-        }
+        // Escribir la nueva entrada en el archivo de texto
+        fs.appendFileSync(textFilePath, newEntry);
 
         // Enviar el correo
         await transporter.sendMail(mailOptions);
         return res.status(200).json({ message: 'Form submitted successfully' });
     } catch (error) {
-        console.error('Error sending email or saving CSV:', error);
-        return res.status(500).json({ message: 'Error sending email or saving CSV' });
+        console.error('Error sending email or saving text file:', error);
+        return res.status(500).json({ message: 'Error sending email or saving text file' });
     }
 }
