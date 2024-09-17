@@ -64,12 +64,14 @@ export default async function (req, res) {
     // Escribir en el archivo CSV
     try {
         // Verifica si el archivo CSV ya existe
-        if (!fs.existsSync(csvFilePath)) {
-            // Si no existe, crea el archivo y escribe el encabezado
-            writeToPath(csvFilePath, [newEntry], { headers: true });
+        const csvExists = fs.existsSync(csvFilePath);
+        const stream = fs.createWriteStream(csvFilePath, { flags: csvExists ? 'a' : 'w' });
+
+        // Escribe el encabezado si el archivo no existe
+        if (!csvExists) {
+            writeToPath(stream, [newEntry], { headers: true });
         } else {
-            // Si existe, agrega la nueva entrada
-            writeToPath(csvFilePath, [newEntry], { headers: false, append: true });
+            writeToPath(stream, [newEntry], { headers: false });
         }
 
         // Enviar el correo
