@@ -1,6 +1,9 @@
 // api/send-email.js
 
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
+const { parse } = require('json2csv');
 
 export default async function (req, res) {
     if (req.method !== 'POST') {
@@ -41,6 +44,28 @@ export default async function (req, res) {
         interest description: ${interest}
         `,
     };
+
+    const csvFilePath = path.join(process.cwd(), 'responses.csv');
+    const newEntry = {
+        name,
+        email,
+        agency,
+        years,
+        affiliations,
+        soldCuba,
+        whoUsed,
+        clientSpend,
+        famInterest,
+        interest
+    };
+
+    if (fs.existsSync(csvFilePath)) {
+        const csv = parse([newEntry], { header: false });
+        fs.appendFileSync(csvFilePath, `\n${csv}`, 'utf8');
+    } else {
+        const csv = parse([newEntry], { header: true });
+        fs.writeFileSync(csvFilePath, csv, 'utf8');
+    }
 
     // Enviar el correo
     try {
