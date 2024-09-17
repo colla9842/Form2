@@ -1,6 +1,10 @@
 // api/send-email.js
 
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
+const { format } = require('date-fns');
+const { writeToPath } = require('fast-csv');
 
 export default async function (req, res) {
     if (req.method !== 'POST') {
@@ -9,14 +13,11 @@ export default async function (req, res) {
 
     const { name, email, agency, years, affiliations, "sold-cuba": soldCuba, "who-used": whoUsed, "client-spend": clientSpend, "fam-interest": famInterest, interest } = req.body;
 
-
     // Configurar el transportador de Nodemailer
     const transporter = nodemailer.createTransport({
         host: 'mta.extendcp.co.uk', // SMTP host
         port: 587, // or 465 for SSL
         secure: false, // true for 465, false for other ports
-        
-        
         auth: {
             user: process.env.EMAIL_USER, // Coloca tu correo aquí
             pass: process.env.EMAIL_PASS, // Coloca tu contraseña aquí
@@ -42,14 +43,40 @@ export default async function (req, res) {
         `,
     };
 
+    // Ruta del archivo CSV
+    const csvFilePath = path.resolve('data/form-submissions.csv');
 
+    // Crear una nueva entrada de CSV
+    const newEntry = {
+        Name: name,
+        Email: email,
+        Agency: agency,
+        'Experience Years': years,
+        Affiliations: affiliations,
+        'Sold Cuba?': soldCuba,
+        'Who use?': whoUsed,
+        'Daily spent per client': clientSpend,
+        FAM: famInterest,
+        'Interest description': interest,
+        Timestamp: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+    };
 
-    // Enviar el correo
+    // Escribir en el archivo CSV
     try {
+        // Verifica si el archivo CSV ya existe
+        if (!fs.existsSync(csvFilePath)) {
+            // Si no existe, crea el archivo y escribe el encabezado
+            writeToPath(csvFilePath, [newEntry], { headers: true });
+        } else {
+            // Si existe, agrega la nueva entrada
+            writeToPath(csvFilePath, [newEntry], { headers: false, append: true });
+        }
+
+        // Enviar el correo
         await transporter.sendMail(mailOptions);
         return res.status(200).json({ message: 'Form submitted successfully' });
     } catch (error) {
-        console.error('Error sending email:', error);
-        return res.status(500).json({ message: 'Error sending email' });
+        console.error('Error sending email or saving CSV:', error);
+        return res.status(500).json({ message: 'Error sending email or saving CSV' });
     }
 }
