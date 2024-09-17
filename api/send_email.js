@@ -5,6 +5,44 @@ const { MongoClient } = require('mongodb');
 const { format } = require('date-fns');
 require('dotenv').config();
 
+const sendEmail = async (mailOptions) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            host: 'mta.extendcp.co.uk',
+            port: 587,
+            secure: false,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully');
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw error; // Re-throw to handle in the main function
+    }
+};
+
+const saveToDatabase = async (newEntry) => {
+    try {
+        const client = new MongoClient(process.env.MONGODB_URI);
+        await client.connect();
+        const db = client.db('formResponses');
+        const collection = db.collection('submissions');
+
+        await collection.insertOne(newEntry);
+
+        await client.close();
+
+        console.log('Data saved to database successfully');
+    } catch (error) {
+        console.error('Error saving to MongoDB:', error);
+        throw error; // Re-throw to handle in the main function
+    }
+};
+
 export default async function (req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' });
@@ -12,10 +50,9 @@ export default async function (req, res) {
 
     const { name, email, agency, years, affiliations, "sold-cuba": soldCuba, "who-used": whoUsed, "client-spend": clientSpend, "fam-interest": famInterest, interest } = req.body;
 
-    // Crear el mensaje de correo
     const mailOptions = {
         from: email,
-        to: process.env.EMAIL_RECEIVER, // El correo donde quieres recibir los mensajes
+        to: process.env.EMAIL_RECEIVER,
         subject: 'New Form fam interest',
         text: `
         Name: ${name}
@@ -31,7 +68,6 @@ export default async function (req, res) {
         `,
     };
 
-    // Crear una nueva entrada de datos
     const newEntry = {
         Name: name,
         Email: email,
@@ -46,49 +82,12 @@ export default async function (req, res) {
         Timestamp: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
     };
 
-    // Crear el transporter de Nodemailer
-    const transporter = nodemailer.createTransport({
-        host: 'mta.extendcp.co.uk', // SMTP host
-        port: 587, // or 465 for SSL
-        secure: false, // true for 465, false for other ports
-        auth: {
-            user: process.env.EMAIL_USER, // Coloca tu correo aquí
-            pass: process.env.EMAIL_PASS, // Coloca tu contraseña aquí
-        },
-    });
-
-    const sendEmail = async () => {
-        try {
-            await transporter.sendMail(mailOptions);
-            console.log('Email sent successfully');
-        } catch (error) {
-            console.error('Error sending email:', error);
-        }
-    };
-
-    const saveToDatabase = async () => {
-        try {
-            // Conectar a MongoDB
-            const client = new MongoClient(process.env.MONGODB_URI);
-            await client.connect();
-            const db = client.db('formResponses');
-            const collection = db.collection('submissions');
-
-            // Insertar datos en la colección
-            await collection.insertOne(newEntry);
-
-            // Cerrar la conexión a la base de datos
-            await client.close();
-
-            console.log('Data saved to database successfully');
-        } catch (error) {
-            console.error('Error saving to MongoDB:', error);
-        }
-    };
-
     try {
-        // Ejecutar ambas operaciones en paralelo
-        await Promise.all([sendEmail(), saveToDatabase()]);
+        // Ejecutar enviar correo y guardar en la base de datos en paralelo
+        await Promise.all([
+            sendEmail(mailOptions),
+            saveToDatabase(newEntry)
+        ]);
 
         return res.status(200).json({ message: 'Form submitted successfully' });
     } catch (error) {
