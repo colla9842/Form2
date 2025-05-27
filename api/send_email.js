@@ -53,7 +53,9 @@ export default async function (req, res) {
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: "sales@cubaprivatetravel.com",
+        cc: "gabrielsimoncollazo@gmail.com",
         subject: 'New Form fam interest',
+        replyTo: email,
         text: `
         Name: ${name}
         Email: ${email}
