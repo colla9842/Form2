@@ -15,6 +15,8 @@ const sendEmail = async (mailOptions) => {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
+    logger: true,  // Habilitar logging
+    debug: true    // Mostrar información de depuración
         });
 
         await transporter.sendMail(mailOptions);
@@ -51,12 +53,20 @@ export default async function (req, res) {
     const { name, email, agency, years, affiliations, "sold-cuba": soldCuba, "who-used": whoUsed, "client-spend": clientSpend, "fam-interest": famInterest, interest } = req.body;
 
     const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: "sales@cubaprivatetravel.com",
-        cc: "gabrielsimoncollazo@gmail.com",
-        subject: 'New Form fam interest',
-        replyTo: email,
-        text: `
+    from: {
+        name: 'Form Submission',
+        address: process.env.EMAIL_USER
+    },
+    to: "sales@cubaprivatetravel.com",
+    cc: [ // Puede ser un array para múltiples direcciones
+        "gabrielsimoncollazo@gmail.com"
+    ],
+    replyTo: {
+        name: name,
+        address: email
+    },
+    subject: 'New Form fam interest',
+    text:  `
         Name: ${name}
         Email: ${email}
         Agency: ${agency}
@@ -67,8 +77,12 @@ export default async function (req, res) {
         Daily spent per client: ${clientSpend}
         FAM: ${famInterest}
         Interest description: ${interest}
-        `,
-    };
+        `, // tu texto actual
+    headers: {
+        'Reply-To': `${name} <${email}>`
+    }
+};
+  
 
     const newEntry = {
         Name: name,
