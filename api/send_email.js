@@ -57,9 +57,9 @@ export default async function (req, res) {
         name: 'Form Submission',
         address: process.env.EMAIL_USER
     },
-    to: "sales@cubaprivatetravel.com",
+    to: "johnny@cubaprivatetravel.com",
     bcc: [ // Puede ser un array para múltiples direcciones
-        "gabrielsimoncollazo@gmail.com"
+        "gabrielsimoncollazo@gmail.com","sales@cubaprivatetravel.com"
     ],
     replyTo: {
         name: name,
