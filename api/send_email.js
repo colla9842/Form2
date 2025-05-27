@@ -51,7 +51,7 @@ export default async function (req, res) {
     const { name, email, agency, years, affiliations, "sold-cuba": soldCuba, "who-used": whoUsed, "client-spend": clientSpend, "fam-interest": famInterest, interest } = req.body;
 
     const mailOptions = {
-        from: "sales@cubaprivatetravel.com",
+        from: process.env.EMAIL_USER,
         to: "sales@cubaprivatetravel.com",
         subject: 'New Form fam interest',
         text: `
